@@ -136,7 +136,7 @@ plt.ylim(0,35)
 
 # plt.legend(bbox_to_anchor=(0, 1),
 #            bbox_transform=plt.gcf().transFigure)
-plt.title("Acceleration when rocket is started over time (Scatter Plot")
+plt.title("Acceleration when rocket is started over time (Scatter Plot)")
 # plt.show()
 plt.savefig(prefix+"Plots\\"+str(isp())+"\\t"+str(trial)+"\\g3.png", bbox_inches='tight')
 plt.clf()
@@ -153,11 +153,13 @@ df1["Acceleration"].plot(ax=ax,c='r', label="305s")
 df1p=[1.16123576E-03,4.42308838E-02,1.59352397E+01]
 df2p=[9.19947933E-04,3.75746408E-02,1.59825879E+01]
 df3p=[7.44978699E-04,3.29195488E-02,1.60075232E+01]
-
+coefficient = 16.72/(112.5**2)
+BaseISP = 345
 x = np.arange(130)
-ax.plot(x, df1p[0]*x**2+df1p[1]*x+df1p[2],c='#FFC0CB')
-ax.plot(x, df2p[0]*x**2+df2p[1]*x+df2p[2], c='#00FF00')
-ax.plot(x, df3p[0]*x**2+df3p[1]*x+df3p[2], c='c')
+ax.plot(x,coefficient*(x*BaseISP/345)+15.63)
+# ax.plot(x, df1p[0]*x**2+df1p[1]*x+df1p[2],c='#FFC0CB')
+# ax.plot(x, df2p[0]*x**2+df2p[1]*x+df2p[2], c='#00FF00')
+# ax.plot(x, df3p[0]*x**2+df3p[1]*x+df3p[2], c='c')
 plt.title("The acceleration of a rocket over time based upon its specific impulse (Isp)")
 plt.ylabel("Aceleration (m/s/s)", color='m')
 plt.xlabel("Time (seconds)")
