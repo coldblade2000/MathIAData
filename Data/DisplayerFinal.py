@@ -10,25 +10,18 @@ def getFirstAccel(xdf):
         if row['Acceleration'] > 5:
             return index
     return xdf.head(1).index[0]
-prefix = "C:\\Users\\diego\\PycharmProjects\\KSPDataIA\\Data\\"
+prefix = "C:\\Users\\diego\\PycharmProjects\\MathIAData\\Data\\"
 
 def processdataframe(xinvar, xtrial, isp):
     xdf = pd.read_csv(
-        "C:\\Users\\diego\\PycharmProjects\\KSPDataIA\\Data\\acceleration" + str(xinvar) + "-" + str(xtrial) + ".csv")
+        prefix + "acceleration" + str(xinvar) + "-" + str(xtrial) + ".csv")
     xdf.set_index("Time", inplace=True)
-    # selectedHeight = input("What height will you fall from?")
-    # terrainHeight = xdf.iloc[0]["ASL"]
-    # print(terrainHeight, "m = terrain height")
     xdf['Acceleration'] = xdf["GForce"]
     f2 = lambda x: x * 9.81
     xdf.Acceleration = xdf.Acceleration.map(f2)
     xdf = xdf[getFirstAccel(xdf):]
     f = lambda x: x - xdf.head(1).index[0]
     xdf.index = xdf.index.map(f)
-    # xdf = xdf[xdf.TrueHeight != -1]
-    # print(xdf.tail(1)["ASL"])
-    # h = lambda x: x - xdf.ASL.iloc[0]
-    # xdf["TrueHeight"] = xdf.ASL.map(h)
 
     xdf["PredictedAccel"] = xdf.index
     # j = lambda x: (x*(BaseISP/isp))**2*coefficient+15.63
@@ -37,17 +30,18 @@ def processdataframe(xinvar, xtrial, isp):
     count = 0
     sum = 0
     for index, row in xdf.iterrows():
-        if index > 5 and row["Acceleration"]<32:
+        if index > 5 and not (index > 90 and row["Acceleration"]<20):
             sum += abs(row["Acceleration"]-row["PredictedAccel"])
             count += 1
     plt.rcParams['axes.grid'] = True
     MAE = sum/count
     print(F"The Mean Absolute error for an ISP of {isp} is {MAE}")
-    return xdf
+    return xdf, MAE
 
-df1=processdataframe(1,2,305)
-df2=processdataframe(2,2,345)
-df3=processdataframe(3,2,385)
+
+df1, MAE305 = processdataframe(1,2,305)
+df2, MAE345 = processdataframe(2,2,345)
+df3, MAE385 = processdataframe(3,2,385)
 
 
 plt.figure(4,figsize=(12,5))
@@ -60,17 +54,26 @@ df1["Acceleration"].plot(ax=ax,c='r', label="305s")
 # df3p=[7.44978699E-04,3.29195488E-02,1.60075232E+01]
 
 x = np.arange(130)
-ax.plot(x,60000/(-((60000/9.81)/305)*x+3840), c='#FFC0CB')
-ax.plot(x,60000/(-((60000/9.81)/345)*x+3840), c='#00FF00')
-ax.plot(x,60000/(-((60000/9.81)/385)*x+3840), c='c')
-# ax.plot(x,coefficient*(x*BaseISP/305)**2+15.63, c='#FFC0CB')
-# ax.plot(x,coefficient*(x*BaseISP/345)**2+15.63, c='#00FF00')
-# ax.plot(x,coefficient*(x*BaseISP/385)**2+15.63, c='c')
+
+plottingmode = 0
+if plottingmode == 0:
+    ax.plot(x,60000/(-((60000/9.81)/305)*x+3840), c='#FFC0CB')
+    ax.plot(x,60000/(-((60000/9.81)/345)*x+3840), c='#00FF00')
+    ax.plot(x,60000/(-((60000/9.81)/385)*x+3840), c='c')
+elif plottingmode == 1:  # exponential
+    ax.plot(x,coefficient*(x*BaseISP/305)**2+15.63, c='#FFC0CB')
+    ax.plot(x,coefficient*(x*BaseISP/345)**2+15.63, c='#00FF00')
+    ax.plot(x,coefficient*(x*BaseISP/385)**2+15.63, c='c')
 # ax.plot(x, df1p[0]*x**2+df1p[1]*x+df1p[2],c='#FFC0CB')
 # ax.plot(x, df2p[0]*x**2+df2p[1]*x+df2p[2], c='#00FF00')
 # ax.plot(x, df3p[0]*x**2+df3p[1]*x+df3p[2], c='c')
 plt.title("The acceleration of a rocket over time based upon its specific impulse (Isp)")
 plt.ylabel("Aceleration (m/s/s)", color='m')
+textstr = '\n'.join((
+    r'$\mathrm{305s: }=%.2f$' % (median, ),
+    r'$\mathrm{345s: }=%.2f$' % (median, ),
+    r'$\mathrm{385s: }=%.2f$' % (median, ),
+    ))
 plt.xlabel("Time (seconds)")
 plt.grid(True)
 plt.xlim(0,130)
