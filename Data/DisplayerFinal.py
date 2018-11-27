@@ -5,12 +5,16 @@ import matplotlib.pyplot as plt
 coefficient = 16.72/(112.5**2)
 BaseISP = 345
 
+plottingmode = 1
+# 0 = Model derived from Tsiolkovsky
+# 1 = Exponential model
+
 def getFirstAccel(xdf):
     for index, row in xdf.iterrows():
         if row['Acceleration'] > 5:
             return index
     return xdf.head(1).index[0]
-prefix = "C:\\Users\\diego\\PycharmProjects\\MathIAData\\Data\\"
+prefix = "C:\\Users\\diego\\PycharmProjects\\KSPDataIA\\Data\\"
 
 def processdataframe(xinvar, xtrial, isp):
     xdf = pd.read_csv(
@@ -24,8 +28,10 @@ def processdataframe(xinvar, xtrial, isp):
     xdf.index = xdf.index.map(f)
 
     xdf["PredictedAccel"] = xdf.index
-    # j = lambda x: (x*(BaseISP/isp))**2*coefficient+15.63
-    j = lambda x: 60000/(-((60000/9.81)/isp)*x+3840)
+    if plottingmode == 0:
+        j = lambda x: 60000 / (-((60000 / 9.81) / isp) * x + 3840)  # Tsiolkosvsky
+    elif plottingmode == 1:
+        j = lambda x: (x*(BaseISP/isp))**2*coefficient+15.63  #Exponential
     xdf["PredictedAccel"] = xdf.PredictedAccel.map(j)
     count = 0
     sum = 0
@@ -45,17 +51,20 @@ df3, MAE385 = processdataframe(3,2,385)
 
 
 plt.figure(4,figsize=(12,5))
-ax = df3["Acceleration"].plot(c='b', label="385s")
-df2["Acceleration"].plot(ax=ax,c='g', label="345s")
-df1["Acceleration"].plot(ax=ax,c='r', label="305s")
+# ax = df3["Acceleration"].plot(c='b', label="385s")
+# df2["Acceleration"].plot(ax=ax,c='g', label="345s")
+# df1["Acceleration"].plot(ax=ax,c='r', label="305s")
 
+
+ax = df1["Acceleration"].plot(c='r', label="305s")
+df2["Acceleration"].plot(ax=ax,c='g', label="345s")
+df3["Acceleration"].plot(ax=ax,c='b', label="385s")
 # df1p=[1.16123576E-03,4.42308838E-02,1.59352397E+01]
 # df2p=[9.19947933E-04,3.75746408E-02,1.59825879E+01]
 # df3p=[7.44978699E-04,3.29195488E-02,1.60075232E+01]
 
 x = np.arange(130)
 
-plottingmode = 0
 if plottingmode == 0:
     ax.plot(x,60000/(-((60000/9.81)/305)*x+3840), c='#FFC0CB')
     ax.plot(x,60000/(-((60000/9.81)/345)*x+3840), c='#00FF00')
@@ -69,11 +78,21 @@ elif plottingmode == 1:  # exponential
 # ax.plot(x, df3p[0]*x**2+df3p[1]*x+df3p[2], c='c')
 plt.title("The acceleration of a rocket over time based upon its specific impulse (Isp)")
 plt.ylabel("Aceleration (m/s/s)", color='m')
+
+
 textstr = '\n'.join((
-    r'$\mathrm{305s: }=%.2f$' % (median, ),
-    r'$\mathrm{345s: }=%.2f$' % (median, ),
-    r'$\mathrm{385s: }=%.2f$' % (median, ),
+    'Mean Absolute Error',
+    r'$\mathrm{305s: }=%.4f$' % (MAE305, ),
+    r'$\mathrm{345s: }=%.4f$' % (MAE345, ),
+    r'$\mathrm{385s: }=%.4f$' % (MAE385, ),
     ))
+# these are matplotlib.patch.Patch properties
+props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
+
+# place a text box in upper left in axes coords
+ax.text(0.2, 0.95, textstr, transform=ax.transAxes, fontsize=14,
+        verticalalignment='top', bbox=props)
+
 plt.xlabel("Time (seconds)")
 plt.grid(True)
 plt.xlim(0,130)
