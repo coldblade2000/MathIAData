@@ -12,7 +12,7 @@ def getFirstAccel(xdf):
         if row['Acceleration'] > 5:
             return index
     return xdf.head(1).index[0]
-prefix = "C:\\Users\\diego\\PycharmProjects\\MathIAData\\Data\\"
+prefix = "C:\\Users\\diego\\PycharmProjects\\KSPDataIA\\Data\\"
 
 def processdataframe(xinvar, xtrial, isp):
     xdf = pd.read_csv(
@@ -53,8 +53,8 @@ for xinvar in range(1,4):
         f = lambda x: x - inputDF.head(1).index[0]
         inputDF.index = inputDF.index.map(f)
 
-        outputDF = inputDF[['Time', 'Acceleration']].copy()
-        outputDF.to_csv(prefix+"\\ProcessedData\\")
+        outputDF = inputDF[['GForce', 'Acceleration']].copy()
+        outputDF.to_csv("C:\\Users\\diego\\PycharmProjects\\KSPDataIA\\Data\\"+"ProcessedData\\"+"acceleration" + str(xinvar) + "-" + str(xtrial) + ".csv")
 df1, MAE305 = processdataframe(1,2,305)
 df2, MAE345 = processdataframe(2,2,345)
 df3, MAE385 = processdataframe(3,2,385)
