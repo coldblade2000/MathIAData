@@ -1,8 +1,8 @@
-Algorithm made by Diego Granada for a Mathematics SL Internal Assesment for the May 2019 exam session.
+Algorithm made by IB Candidate gfr981 for a Mathematics SL Internal Assesment for the May 2019 exam session.
 
 This code is licensed under the 3-Clause BSD license.
 
-Copyright (c) 2018, Diego Granada, Two Tower Studios
+Copyright (c) 2018, IB Candidate gfr981, Two Tower Studios
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
